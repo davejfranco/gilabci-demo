@@ -1,0 +1,41 @@
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: tutorial
+  region: eu-west-1
+  version: '1.24'
+
+vpc:
+  id: "vpc-032f72d562baa7348"
+  clusterEndpoints:
+    publicAccess:  true
+    privateAccess: true
+  subnets:
+    public:
+      public-1-eu-west-1a:
+        id: "subnet-0728b7f5e0a9405c1"
+      public-2-eu-west-1b:
+        id: "subnet-043ee08190713a311"
+    private:
+      private-1-eu-west-1a:
+        id: "subnet-0dff44b0876cfd00b"
+      private-2-eu-west-1b:
+        id: "subnet-085b31be8c2ce3fbe"  
+
+managedNodeGroups:
+  - name: managed-ng-1
+    instanceType: t3.small
+    privateNetworking: true
+    minSize: 1
+    maxSize: 2
+    desiredCapacity: 1
+    volumeSize: 30
+    labels: {node-group-type: managed}
+    tags:
+      nodegroup-role: worker
+
+
+
+
