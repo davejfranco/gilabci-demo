@@ -5,9 +5,9 @@ metadata:
   name: gitlab-role
   namespace: web
 rules:
-- apiGroups: [""]
-  resources: ["pods", "services"]
-  verbs: ["get", "list", "watch", "create", "update", "delete"]
+- apiGroups: ["", "apps"]
+  resources: ["pods", "deployments","services"]
+  verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1

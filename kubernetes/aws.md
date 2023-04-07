@@ -53,3 +53,7 @@ Al final recuerda eliminar el cluster.
 ```shell
 eksctl delete cluster --name demo
 ```
+
+## Links de interes
+- Workshop: https://www.eksworkshop.com/ 
+- Kubernetes: https://kubernetes.io/docs/home/

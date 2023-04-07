@@ -37,6 +37,8 @@ Vamos a la consola de AWS y creamos un usuario de IAM con el nombre de gitlab. T
 }
 ```
 
+Tambien vamos a necesitar agregarle la politica de AmazonEC2ContainerRegistryPowerUser a nuestro usuario.
+
 ### Generar credenciales
 
 Necesitamos generar las credenciales que luego usaremos en el pipeline de CI/CD. Para ello vamos a la consola de AWS y vamos a la sección de IAM. En la sección de usuarios vamos a seleccionar el usuario que creamos anteriormente y vamos a la sección de credenciales de seguridad. Ahí vamos a generar las credenciales de acceso.
@@ -81,6 +83,8 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ```
 
+Referencia: https://kubernetes.io/docs/reference/access-authn-authz/rbac/
+
 antes de desplegarlo vamos a crear el namespace web
 
 ```shell
@@ -90,13 +94,13 @@ kubectl create namespace web
 y ahora si vamos a desplegarlo
 
 ```shell
-kubectl apply -f gitlab-role.yaml
+kubectl apply -f rbac.yaml
 ```
 
 El usuarios gitlab solo tendrá acceso a los recursos que se encuentren en el namespace web. Recuerda que no solo debes considerar la seguridad de tu entorno aws sino el de cluster. Un acceso no autorizado podria acceder a credenciales para elevar privilegios o simplemente dañar el cluster e interrumpir el servicio.
 
 ### Asociar usuario de gitlab a cluster
-eksctl create iamidentitymapping --cluster demo --arn arn:aws:iam::<AWS_ACCOUNT_ID>:user/gitlab --username gitlab-deployer --group system:authenticated
+eksctl create iamidentitymapping --cluster demo --arn arn:aws:iam::444106639146:user/gitlab --username gitlab-deployer --group system:authenticated
 
 podemos verificar que el usuario se haya creado correctamente con el siguiente comando
 
@@ -120,16 +124,20 @@ ci:
   script:
     - pip install -r requirements.txt
     - pytest test/test.py
+  only:
+    - merge_requests
 
 build:
   stage: build
-  image: docker:latest
+  image: 
+    name: amazon/aws-cli
+    entrypoint: [""]
   services:
     - docker:dind
   before_script:
-    - curl --silent --location "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip" && unzip /tmp/awscliv2.zip && sudo /tmp/aws/install
-    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+    - amazon-linux-extras install docker -y
   script:
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
     - docker build -t $ECR_REPO:$CI_COMMIT_SHORT_SHA .
     - docker push $ECR_REPO:$CI_COMMIT_SHORT_SHA
   only:
@@ -137,10 +145,15 @@ build:
   needs:
     - job: ci
 
-
 deploy:
   stage: deploy
-  image: amazon/aws-cli:latest
+  image:
+    name: amazon/aws-cli
+    entrypoint: [""]
+  before_script:
+    - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    - chmod +x ./kubectl
+    - mv ./kubectl /usr/local/bin/kubectl
   script:
     - aws eks update-kubeconfig --name $CLUSTER --region $AWS_DEFAULT_REGION
     - kubectl set image deployment/fastapi api=$ECR_REPO:$CI_COMMIT_SHORT_SHA --namespace web
