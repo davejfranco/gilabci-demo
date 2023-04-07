@@ -2,12 +2,12 @@
 
 ### Paso 1: Crear un repositorio de contenedores
 Nos movemos al servicio de ECR y hacemos click en el botón **Create repository**.
-![ECR](img/createrepo.png)
+![ECR](../img/createrepo.png)
 
 ### Paso 2: Configurar el repositorio de contenedores
 
 Le colocamos un nombre y le decimos crear el repositorio.
-![ECR](img/namedrepo.png)
+![ECR](../img/namedrepo.png)
 
 ### Paso 3: Configurar el acceso al repositorio de contenedores
 

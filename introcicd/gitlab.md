@@ -36,14 +36,14 @@ git push origin develop
 ```
 
 Nos iremos a nuestra cuenta de gitlab y crearemos un merge request haciendo click en el botón **New merge request**.
-![gitlab](img/newmerge.png)
+![gitlab](../img/newmerge.png)
 
 Seleccionamos la branch de origen y la branch de destino y hacemos click en el botón **Compare branches and continue**.
-![gitlab](img/comparebranch.png)
+![gitlab](../img/comparebranch.png)
 
 Le damos un nombre al merge request, una descripción y hacemos click en el botón **Submit merge request**.
-![gitlab](img/createmerge.png)
+![gitlab](../img/createmerge.png)
 
 ## Ejecutar pipeline
 Creado el merge request, nos iremos a la pestaña **Pipelines** y veremos que el pipeline se está ejecutando.
-![gitlab](img/pipeline1.png)
+![gitlab](../img/pipeline1.png)
